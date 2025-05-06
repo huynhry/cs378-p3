@@ -4,6 +4,8 @@ import MenuHeader from './components/MenuHeader';
 
 import 'bootstrap/dist/css/bootstrap.min.css'; // This imports bootstrap css styles. You can use bootstrap or your own classes by using the className attribute in your elements.
 
+import React, { useState } from 'react';
+
 // Menu data. An array of objects where each object represents a menu item. Each menu item has an id, title, description, image name, and price.
 // You can use the image name to get the image from the images folder.
 const menuItems = [
@@ -81,23 +83,67 @@ const menuItems = [
 
 
 function App() {
+
+  const [cart, setCart] = useState({}); 
+
+  const addToCart = (id) => {
+    setCart((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  };
+
+  const removeFromCart = (id) => {
+    setCart((prev) => {
+      const newCount = (prev[id] || 0) - 1;
+      if (newCount <= 0) {
+        const { [id]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [id]: newCount };
+    });
+  };
+
+  const clearCart = () => setCart({});
+
+  const subtotal = menuItems.reduce((total, item) => {
+    return total + (cart[item.id] || 0) * item.price;
+  }, 0);
+
+  const placeOrder = () => {
+    const orderedItems = menuItems.filter(item => cart[item.id]);
+    if (orderedItems.length === 0) {
+      alert("No items in cart.");
+      return;
+    }
+    const summary = orderedItems.map(item =>
+      `${item.title}: ${cart[item.id]}`
+    ).join('\n');
+    alert(`Order placed!\n\n${summary}\n\nTotal: $${subtotal.toFixed(2)}`);
+  };
+
   return (
     <div>
-      <div className="menu">
       <MenuHeader />
-        {/* Display menu items dynamicaly here by iterating over the provided menuItems */}
+      <div className="menu">
         {menuItems.map(item => (
           <MenuItem
             key={item.id}
-            title={item.title}
-            description={item.description}
-            price={item.price}
-            imageName={item.imageName}
+            {...item}
+            quantity={cart[item.id] || 0}
+            onAdd={() => addToCart(item.id)}
+            onRemove={() => removeFromCart(item.id)}
           />
         ))}
+      </div>
+      <div className="cart-controls">
+        <p>Subtotal: ${subtotal.toFixed(2)}</p>
+        <button onClick={placeOrder}>Order</button>
+        <button onClick={clearCart}>Clear All</button>
       </div>
     </div>
   );
 }
+
 
 export default App;

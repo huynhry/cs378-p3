@@ -1,7 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
-  "homepage": "https://huynhry.github.io/cs378-p2/",
+  "homepage": "https://huynhry.github.io/cs378-p3/",
   "private": true,
   "devDependencies": {
     "gh-pages": "^6.3.0"
